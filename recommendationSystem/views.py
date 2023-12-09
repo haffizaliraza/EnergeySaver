@@ -89,5 +89,3 @@ class BulbFormView(View):
 
         # If any form is invalid, re-render the form with errors
         return render(request, "seconForm.html", {'room_data': room_data})
-
-

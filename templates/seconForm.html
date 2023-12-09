@@ -1,88 +1,137 @@
-          {% load static %}
-          <!DOCTYPE html>
-          <html lang="en">
-            <head>
-              <meta charset="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-              <title>Recommendation</title>
-              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
-              <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}" />
-            </head>
-            <body>
-              <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div class="container">
-                  <a class="navbar-brand" href="/">Recommendation</a>
-                  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                  <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ml-auto">
-                      <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </nav>
-              <div class="main-content">
-                <div class="container mt-5">
-                  <div class="row justify-content-center">
-                    <div class="col-12 col-md-6 col-sm-12 login-form-wrap">
-                      <div class="card shadow">
-                        <div class="card-body">
-                          <h1 class="card-title text-center mb-4">Calculate cost</h1>
-                          <div class="row">
-                            <div class="col-4 text-center">
-                              <a href="#" data-toggle="modal" data-target="#bulbImageModal" data-image-url="{% static 'images/first.png' %}"><img src="{% static 'images/first.png' %}" alt="Incandescent Bulb" class="img-fluid custom-max-width-30" /></a>
-                              <p>Incandescent Bulb</p>
-                            </div>
-                            <div class="col-4 text-center">
-                              <a href="#" data-toggle="modal" data-target="#bulbImageModal" data-image-url="{% static 'images/second.jpg' %}"><img src="{% static 'images/second.jpg' %}" alt="Compact Fluorescent Bulb" class="img-fluid custom-max-width-30" /></a>
-                              <p>Compact Fluorescent Bulb</p>
-                            </div>
-                            <div class="col-4 text-center">
-                              <a href="#" data-toggle="modal" data-target="#bulbImageModal" data-image-url="{% static 'images/third.jpg' %}"><img src="{% static 'images/third.jpg' %}" alt="LED Bulb" class="img-fluid custom-max-width-30" /></a>
-                              <p>LED Bulb</p>
-                            </div>
-                          </div>
-                          <form method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            {% for data in room_data %}
-                              <div class="room-form">
-                                <h3>{{ data.name }}</h3>
-                                {{ data.form.as_p }}
-                              </div>
-                            {% endfor %}
-                            <div class="form-group">
-                              <div class="row">
-                                <div class="col-12">
-                                  <input type="submit" value="Submit" class="btn btn-success" />
-                                </div>
-                              </div>
-                            </div>
-                          </form>
-                          {% if total_cost %}
-                            <div class="mt-4">
-                              <h2>Total Current Cost</h2>
-                              <p>Total Current Cost: ${{ total_cost|floatformat:2 }}</p>
-                            </div>
-                          {% endif %}
-                          <!-- ... (previous HTML code) ... -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Recommendation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}" />
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="/">Recommendation</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="main-content">
+      <div class="container mt-5">
+        <div class="row justify-content-center">
+          <div class="col-12 col-md-6 col-sm-12 login-form-wrap">
+            <div class="card shadow">
+              <div class="card-body">
+                <h1 class="card-title text-center mb-4">Calculate cost</h1>
+                <form method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  {% for data in room_data %}
+                  <div class="room-form">
+                    <h3 class="room-name" data-toggle="collapse" data-target="#{{ data.name|slugify }}">{{ data.name }}</h3>
+                    <div id="{{ data.name|slugify }}" class="collapse">
+                      <div class="form-group">
+                        {{ data.form.incandescent_bulbs.label_tag }}
+                        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#bulbImageModal" data-image-url="{% static 'images/first.png' %}">
+                          <span>&#8230;?</span>
+                        </button>
+                        {{ data.form.incandescent_bulbs }}
 
-                          {% if cost_savings %}
-                            <div class="mt-4">
-                              <h2>Cost Savings</h2>
-                              <ul>
-                                {% for room, savings in cost_savings.items %}
-                                  <li>{{ room }}:</li>
-                                  <ul>
-                                    {% for bulb_type, savings_value in savings.items %}
-                                      <li>If you use {{ bulb_type }} bulbs, you can save ${{ savings_value|floatformat:2 }} per year.</li>
-                                    {% endfor %}
-                                  </ul>
-                                {% endfor %}
-                              </ul>
-                            </div>
-                          {% endif %}
-                          {% if recommendations %}
+                        {% for error in data.form.incandescent_bulbs.errors %}
+                          <div class="text-danger">
+                            {{ error }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                
+                      <div class="form-group">
+                        {{ data.form.incandescent_wattage.label_tag }}
+                        {{ data.form.incandescent_wattage }}
+                        {% for error in data.form.incandescent_wattage.errors %}
+                          <div class="text-danger">
+                            {{ error }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                
+                      <div class="form-group">
+                        {{ data.form.compact_fluorescent_bulbs.label_tag }}
+                        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#bulbImageModal" data-image-url="{% static 'images/second.jpg' %}">
+                          <span>&#8230;?</span>
+                        </button>
+                        {{ data.form.compact_fluorescent_bulbs }}
+                        {% for error in data.form.compact_fluorescent_bulbs.errors %}
+                          <div class="text-danger">
+                            {{ error }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                
+                      <div class="form-group">
+                        {{ data.form.compact_fluorescent_wattage.label_tag }}
+                        {{ data.form.compact_fluorescent_wattage }}
+                        {% for error in data.form.compact_fluorescent_wattage.errors %}
+                          <div class="text-danger">
+                            {{ error }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                
+                      <div class="form-group">
+                        {{ data.form.led_bulbs.label_tag }}
+                        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#bulbImageModal" data-image-url="{% static 'images/third.jpg' %}">
+                          <span>&#8230;?</span>
+                        </button>
+                        {{ data.form.led_bulbs }}
+                        {% for error in data.form.led_bulbs.errors %}
+                          <div class="text-danger">
+                            {{ error }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                
+                      <div class="form-group">
+                        {{ data.form.led_wattage.label_tag }}
+                        {{ data.form.led_wattage }}
+                        {% for error in data.form.led_wattage.errors %}
+                          <div class="text-danger">
+                            {{ error }}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+                
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-12">
+                        <input type="submit" value="Submit" class="btn btn-success" />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                <div class="modal fade" id="resultModal" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="resultModalLabel">Results</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        {% if total_cost %}
+                          <h2>Total Current Cost</h2>
+                          <p>Total Current Cost: ${{ total_cost|floatformat:2 }}</p>
+                        {% endif %}
+                        
+                        {% if recommendations %}
                           <h2>Recommendations</h2>
                           <ul>
                             {% for room, room_recommendations in recommendations.items %}
@@ -101,39 +150,48 @@
                             {% endfor %}
                           </ul>
                         {% endif %}
-                        
-                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              
               </div>
-              <div class="modal fade" id="bulbImageModal" tabindex="-1" role="dialog" aria-labelledby="bulbImageModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="bulbImageModalLabel">Bulb Image</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    </div>
-                    <div class="modal-body">
-                      <img id="bulbImage" src="" alt="Bulb Image" class="img-fluid" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="bulbImageModal" tabindex="-1" role="dialog" aria-labelledby="bulbImageModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="bulbImageModalLabel">Bulb Image</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <img id="bulbImage" src="" alt="Bulb Image" class="img-fluid" />
+          </div>
+        </div>
+      </div>
+    </div>
 
-              <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-              <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-              <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-              <script>
-                $(document).ready(function () {
-                  $('#bulbImageModal').on('show.bs.modal', function (event) {
-                    var button = $(event.relatedTarget)
-                    var imageUrl = button.data('image-url')
-                    var modal = $(this)
-                    modal.find('#bulbImage').attr('src', imageUrl)
-                  })
-                })
-              </script>
-            </body>
-          </html>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script>
+      {% if total_cost or recommendations %}
+      $('#resultModal').modal('show');
+      {% endif %}
+
+
+      $(document).ready(function () {
+        $('#bulbImageModal').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget)
+          var imageUrl = button.data('image-url')
+          var modal = $(this)
+          modal.find('#bulbImage').attr('src', imageUrl)
+        })
+      })
+    </script>
+  </body>
+</html>
